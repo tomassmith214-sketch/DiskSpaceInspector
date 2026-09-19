@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType><TargetFramework>net8.0-windows</TargetFramework><UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest><AssemblyName>DiskSpaceInspector</AssemblyName>
+    <ApplicationIcon>app.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup><ProjectReference Include="../DiskSpaceInspector.Core/DiskSpaceInspector.Core.csproj" /></ItemGroup>
 </Project>

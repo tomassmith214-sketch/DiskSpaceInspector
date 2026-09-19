@@ -1,10 +1,18 @@
+<p align="center">
+  <img src="assets/app-icon.png" alt="DiskSpaceInspector app icon" width="160">
+</p>
+
 # DiskSpaceInspector
 
-Нативный анализатор локального диска на WPF / .NET 8. Русский интерфейс, тёмная и светлая темы, MVVM. По умолчанию выбран `C:\`.
+DiskSpaceInspector is a native Windows disk space analyzer built with WPF and .NET 8. It scans local fixed or removable drives, shows folder and file usage, visualizes categories, and gives conservative manual-review recommendations. The app starts in English and includes a RU/EN language toggle, dark and light themes, and a read-only analysis model.
 
-## Сборка и запуск
+## Build And Run
 
-Нужны Windows 10/11 и .NET SDK 8 или новее с поддержкой .NET 8. Для запуска собранного приложения нужен **.NET Desktop Runtime 8 x64**.
+Requirements:
+
+- Windows 10 or Windows 11
+- .NET SDK 8 or newer
+- .NET Desktop Runtime 8 x64 for running published builds
 
 ```powershell
 dotnet build DiskSpaceInspector.sln -c Release
@@ -12,57 +20,63 @@ dotnet run --project src/DiskSpaceInspector -c Release
 dotnet test tests/DiskSpaceInspector.Tests -c Release
 ```
 
-Исполняемый файл: `src\DiskSpaceInspector\bin\Release\net8.0-windows\DiskSpaceInspector.exe`.
+The development executable is created at:
 
-Приложение и библиотека не имеют сторонних runtime-зависимостей. MVVM использует небольшой собственный Observable/Command, диаграммы рисуются средствами WPF. NuGet требуется только для тестового проекта (xUnit).
+```text
+src\DiskSpaceInspector\bin\Release\net8.0-windows\DiskSpaceInspector.exe
+```
 
-## Возможности
+The application and core library have no third-party runtime dependencies. MVVM uses a small local Observable/Command implementation, and charts are rendered with native WPF drawing. NuGet packages are used only by the test project.
 
-- **Обзор:** восемь показателей диска, treemap с переходом в папки и возвратом к родителю, Top 20 файлов/папок, donut категорий, основные источники объёма и примеры рекомендаций.
-- **Папки:** полное раскрываемое дерево с ленивым созданием узлов, сортировка дерева по размеру, таблица всех папок со статусом доступа, количеством потомков и долей занятого места. Корень и реальные каталоги первого уровня доступны в дереве и на карте. Двойной клик в таблице открывает карту папки.
-- **Файлы:** крупнейшие файлы, путь, размер, расширение, категория, назначение и риск. Поиск по пути/имени/расширению, минимальный размер в MB (1024 MB = 1 GB), фильтры по категории и расширению.
-- **Типы файлов:** сводки по всем прочитанным файлам с количеством, средним, максимумом и примерами. Расширение может иметь несколько строк, если категории по расположению отличаются.
-- **Программы:** фактически найденные папки Program Files, ProgramData, AppData, кэши и зависимости. Это эвристика по пути, не реестр установленных приложений. Вложенные строки могут пересекаться по объёму.
-- **Рекомендации:** осторожные поводы для ручной проверки, риски и предупреждения. Отдельная таблица ошибок доступа и пропущенных ссылок.
-- Общая панель деталей с точными байтами, датами, атрибутами, полным путём, копированием пути и открытием папки в Проводнике **только по клику**.
-- Экспорт CSV / JSON / автономного HTML по явному выбору папки через стандартный диалог Windows. Если доступен другой локальный диск, диалог начинается с него. При отсутствии другого диска папка не подставляется приложением; необходимо явно выбрать её в диалоге. Экспорт на C: возможен только после явного выбора пользователя.
+## Features
 
-Отчёты содержат до 5 000 крупнейших папок, до 50 000 крупнейших файлов, до 400 рекомендаций, полные сводки по категориям/расширениям и список ошибок. Ограничения указаны в каждом формате отчёта.
+- **Overview:** drive metrics, folder treemap, Top 20 folders/files, category donut chart, main causes of used space, and recommendation preview.
+- **Folders:** full lazy folder tree, sortable folder table, access status, child counts, disk-used percentage, and double-click navigation back to the overview map.
+- **Files:** largest retained files with path, size, extension, category, purpose, and risk.
+- **File types:** extension summaries with counts, totals, averages, largest file, and example paths.
+- **Programs:** detected Program Files, ProgramData, AppData, cache, and dependency folders. This is path-based analysis, not a registry-based installed-program list.
+- **Recommendations:** cautious metadata-based candidates for manual review, with risk and warning text. Recommendations are not delete commands.
+- **Details panel:** exact bytes, dates, attributes, full path, copy-path action, and explicit Explorer opening for the selected item.
+- **Export:** CSV, JSON, and standalone HTML reports after the user explicitly chooses an output folder.
 
-Поиск/минимальный размер/сортировка применяются к таблицам папок, файлов и программ. Фильтры расширения и категории применяются к файлам. Дерево остаётся полным. Заголовки всех таблиц позволяют сортировать столбцы; размеры сортируются численно, а не как строки.
+Reports include up to 5,000 largest folders, up to 50,000 retained largest files, up to 400 recommendations, category and extension summaries, and scan issues.
 
-## Гарантии анализа без изменений
+Search, minimum size, and sorting apply to folder, file, and program tables. Extension and category filters apply to files. The tree remains complete. Table size columns sort numerically.
 
-Приложение **не удаляет, не перемещает, не переименовывает и не изменяет исследуемые файлы**, их атрибуты, ACL, реестр, настройки или программы. Оно не запускает очистку, cmd или PowerShell. Содержимое файлов не открывается: читаются путь, логическая длина, расширение, даты и атрибуты; перечисляются каталоги. Данные сканирования, тема и фильтры хранятся в памяти. Сохранённых настроек, собственных логов, баз и дискового кэша нет.
+## Read-Only Safety
 
-- `DiskSpaceInspector.Core/DiskScanner.cs`: только DirectoryInfo/FileInfo и чтение метаданных. Корень ограничен доступным локальным диском. Reparse points проверяются перед обходом и пропускаются, в том числе ссылки на файлы и облачные placeholders.
-- `DiskSpaceInspector.Core/ReportBuilder.cs`: только формирование строк отчёта в памяти; HTML экранирует имена, CSV защищён от интерпретации формул.
-- `DiskSpaceInspector/MainViewModel.cs`, `ExportAsync`: **единственное место записи в файловую систему в приложении** — новый файл отчёта после подтверждения папки в диалоге. `FileMode.CreateNew` исключает перезапись существующего файла.
-- `OpenExplorer`: открывает папку штатным Explorer без команд изменения. Буфер обмена заполняется только по команде пользователя.
+DiskSpaceInspector does not delete, move, rename, clean, or modify scanned files, file attributes, ACLs, registry keys, settings, or programs. It does not run cleanup commands, cmd, or PowerShell. It reads filesystem metadata only: path, logical length, extension, dates, attributes, and directory entries.
 
-Как и при запуске любого .NET-приложения, Windows/.NET могут выполнять собственные системные операции. Гарантия относится к действиям приложения. Сборка и тесты отдельно создают файлы проекта, бинарники, тестовые данные и результаты проверки; это не поведение установленного анализатора.
+Relevant implementation boundaries:
 
-**Рекомендации не являются командой к удалению.** Они основаны на метаданных, а не на знании назначения содержимого. Критические имена и системные пути помечены высоким риском. Даже неизвестный или временный файл может быть нужен. Управление кэшем предлагается изучать в настройках соответствующего приложения.
+- `DiskSpaceInspector.Core/DiskScanner.cs` uses `DirectoryInfo` and `FileInfo` metadata APIs. Reparse points, junctions, file links, and cloud placeholders are skipped.
+- `DiskSpaceInspector.Core/ReportBuilder.cs` builds report strings in memory. HTML output is encoded and CSV output is guarded against formula interpretation.
+- `DiskSpaceInspector/MainViewModel.cs`, `ExportAsync` is the only application filesystem write path, reached only after the user chooses a report folder. It uses `FileMode.CreateNew`.
+- `OpenExplorer` opens Explorer for the selected item; it does not perform file-changing operations.
 
-## Сканирование и ограничения MVP
+Windows and .NET may perform their normal runtime operations when any desktop application starts. The read-only guarantee refers to DiskSpaceInspector's own behavior. Building and testing the source creates normal project binaries and test artifacts.
 
-Один фоновый worker владеет изменяемыми агрегатами; UI получает неизменяемые снимки прогресса не чаще чем раз в 150 мс. После завершения или остановки результаты публикуются в интерфейс. Фильтрация с задержкой 250 мс и сортировка выполняются в фоне. Таблицы виртуализированы. Точное время завершения заранее неизвестно, поэтому индикатор прогресса неопределённый; показываются путь, счётчики и время.
+## MVP Limits
 
-- Все доступные размеры входят в агрегаты. В памяти хранятся дерево папок, статистика расширений/категорий и **50 000 крупнейших файлов**. Поиск по файлам охватывает этот набор. До 300 файловых и 100 папочных рекомендаций сохраняются отдельно. Полное дерево, ошибки и сводки не ограничены: на дисках с миллионами каталогов расход памяти растёт.
-- Treemap показывает до 39 крупнейших элементов папки и объединяет остаток. Не вошедшие в файловый набор прямые файлы показываются агрегированным блоком. Агрегированные блоки не имеют перехода; отдельные файлы открывают детали. Нулевые размеры на карте не отображаются, но доступны в таблицах.
-- Папки агрегируются снизу вверх. Корень не участвует в рейтинге крупнейшей папки. Размеры вложенных папок нельзя складывать между собой. Процент считается от показателя «занято» выбранного диска на момент запуска сканирования.
-- Размеры **логические**, а не физически выделенные блоки NTFS. Hard links могут учитываться несколько раз; сжатие, sparse-файлы, служебные данные NTFS, VSS и недоступные файлы приводят к расхождениям с занятым местом диска. Это не ошибка арифметики.
-- Ошибки доступа и исчезнувшие во время обхода объекты не прерывают анализ. Частичные каталоги помечаются. При отмене все результаты явно отмечаются как неполные. Отмена проверяется между операциями чтения: уже начатый синхронный системный вызов метаданных нельзя мгновенно прервать.
-- Администратор не требуется. При необходимости более полного доступа можно вручную перезапустить от администратора; приложение не повышает права самостоятельно.
-- Ссылки/junction/reparse points не обходятся. Сканирование не является атомарным снимком: если другой процесс изменяет структуру одновременно, результат может отличаться от текущего состояния диска. Проверка атрибутов не служит защитой от специально подстроенной конкурентной подмены каталога.
-- Сетевые диски исключены. Анализ не читает содержимое файлов и не определяет дубликаты, владельцев hard links или реально установленные программы.
+- All accessible sizes are included in aggregates, but the UI keeps the 50,000 largest files for file-table search and detail browsing.
+- The treemap shows up to 39 largest elements in a folder and groups the rest.
+- Sizes are logical file sizes, not physically allocated NTFS blocks. Hard links can be counted more than once; compression, sparse files, VSS, NTFS metadata, and inaccessible files can differ from Windows Explorer's used-space numbers.
+- Access errors and disappearing files do not stop the scan. Partial results are marked when scanning is cancelled.
+- Cancellation is checked between metadata operations; a synchronous filesystem call already in progress cannot be interrupted instantly.
+- Administrator rights are not required. Running as administrator may allow more folders to be read, but the app never elevates itself.
+- Network drives are excluded.
+- File contents are not read, duplicate detection is not performed, and installed programs are inferred by path rather than registry data.
 
-## Структура
+## Project Layout
 
-`src/DiskSpaceInspector.Core`: модели, форматирование, категоризация/риск, сканер, агрегация, рекомендации и построение отчёта.
+```text
+src/DiskSpaceInspector.Core   Models, scanner, aggregation, categorization, recommendations, reports
+src/DiskSpaceInspector        WPF app, MVVM, export dialog, charts, interactions
+tests/DiskSpaceInspector.Tests
+                              Unit tests for scanner behavior, categories, risk, reports, cancellation
+tools/VisualSmoke             UI smoke-test utility that writes screenshots into ignored artifacts/
+```
 
-`src/DiskSpaceInspector`: WPF, MVVM, взаимодействия по клику, диалог экспорта, три нативные диаграммы в `Controls/SpaceChart.cs`.
+## License
 
-`tests/DiskSpaceInspector.Tests`: тесты размеров, категорий, рисков, агрегации, исключения reparse points, отмены, обработки ошибок и экранирования отчётов.
-
-`tools/VisualSmoke`: отдельный инструмент проверки интерфейса, создающий изображения экранов в `artifacts`. Он не входит в поставку приложения.
+MIT. See [LICENSE](LICENSE).
